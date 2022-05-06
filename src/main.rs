@@ -1,9 +1,9 @@
 use eframe::{
-    egui::{self, plot::{Points, Plot, Values, Value, Line}, Layout},
+    egui::{self, plot::{Points, Plot, Values, Value, Line, VLine}, Layout},
     epi::{App}, run_native,
 };
 use functions::function_value;
-use laguere::{laguere_approx, laguere_approx_value};
+use laguere::{laguere_approx_value, calculate_lambdas};
 
 mod functions;
 mod laguere;
@@ -33,8 +33,9 @@ struct AppState {
     mode: Mode,
     chosen_function_values: Vec<Value>,
     approx_values: Vec<Value>,
-    approx_coefficients: Vec<f64>,
+    lambdas: Vec<f64>,
     center_plot: bool,
+    integral_nodes: usize,
 }
 
 impl AppState {
@@ -47,8 +48,9 @@ impl AppState {
             mode: Mode::Nodes,
             chosen_function_values: Vec::new(),
             approx_values: Vec::new(),
-            approx_coefficients: Vec::new(),
+            lambdas: Vec::new(),
             center_plot: false,
+            integral_nodes: 2,
         }
     }
 }
@@ -62,6 +64,11 @@ impl App for AppState {
         ctx.set_pixels_per_point(1.5);
         egui::SidePanel::left("left_panel").min_width(150.).show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
+
+                // ##################################
+                //         FUNCTION SELECTION
+                // ##################################
+
                 ui.group(|ui| {
                     ui.heading("Function");
                     ui.add_space(5.);
@@ -75,6 +82,11 @@ impl App for AppState {
                         ui.radio_value(&mut self.function, Function::Mixed, "Mixed");
                     });
                 });
+
+                // ##################################
+                //         APPROX. RANGE
+                // ##################################
+
                 ui.group(|ui| {
                     ui.heading("Approx. Range");
                     ui.add_space(10.);
@@ -88,7 +100,7 @@ impl App for AppState {
                         ui.add_space(1.);
                     });
                     
-                });
+                }); 
                 ui.label("Mode");
                 ui.radio_value(&mut self.mode, Mode::Nodes, "Nodes");
                 ui.radio_value(&mut self.mode, Mode::AproxError, "Approx. Error");
@@ -97,6 +109,8 @@ impl App for AppState {
                         ui.group(|ui| {
                             ui.label("No. Of Nodes");
                             ui.add(egui::Slider::new(&mut self.no_of_nodes, 2..=10));
+                            ui.label("Newton-Cotes Nodes");
+                            ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=50));
                         });
                     }
                     Mode::AproxError => {
@@ -108,16 +122,12 @@ impl App for AppState {
                     // default some parameters
                     self.chosen_function_values = Vec::new();
                     self.approx_values = Vec::new();
-                    self.approx_coefficients = Vec::new();
-
-                    let mut min = 0.;
-                    if self.left < 3. {
+                    self.lambdas = Vec::new();
+                    if self.left < 0. {
                         self.left = 0.;
-                        min = 0.;
-                    } else {
-                        min = self.left - 3.;
                     }
-                    let max = self.right + 10.;
+                    let min = self.left;
+                    let max = self.right;
                     // generating values of chosen function for the plot
                     self.chosen_function_values = (0..10000)
                     .map(|i| {
@@ -128,19 +138,22 @@ impl App for AppState {
                     .collect();
 
                     // generating values of approximated function for the plot
-                    self.approx_coefficients = laguere_approx(self.function, self.no_of_nodes, self.left, self.right);
-                    for i in 0..10000 {
-                        let x = min + i as f64 * ((max) - (min)) / 10000.;
-                        self.approx_values.push(Value::new(x, laguere_approx_value(&self.approx_coefficients, x)));
-                    }
+                    self.lambdas = calculate_lambdas(self.function, self.no_of_nodes, self.integral_nodes, self.left, self.right);
+                    self.approx_values = (0..10000)
+                    .map(|i| {
+                        let x = min + i as f64 *
+                        ((max) - (min)) / 10000.;
+                        Value::new(x, laguere_approx_value(&self.lambdas, x))
+                    })
+                    .collect();
                 }
-                let mut text: String = String::new();
-                for i in &self.approx_coefficients {
-                    text.push_str(&format!("{:.5}, ", i));
-                }
-                ui.text_edit_multiline(
-                    &mut text
-                )
+                // let mut text: String = String::new();
+                // for i in &self.lambdas {
+                //     text.push_str(&format!("{:.5}, ", i));
+                // }
+                // ui.text_edit_multiline(
+                //     &mut text
+                // )
             });
         });
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -149,6 +162,9 @@ impl App for AppState {
             let approx_values = Values::from_values(self.approx_values.clone());
             let chosen_plot = Line::new(chosen_values).name("Chosen Function");
             let approx_plot = Line::new(approx_values).name("Approx. Function");
+
+            let vline_left = VLine::new(self.left);
+            let vline_right = VLine::new(self.right);
 
             ui.checkbox(&mut self.center_plot, "Center Plot");
             let mut plot = Plot::new("my_plot")
@@ -162,6 +178,8 @@ impl App for AppState {
             plot.show(ui, |plot_ui| {
                 plot_ui.line(chosen_plot);
                 plot_ui.line(approx_plot);
+                plot_ui.vline(vline_left);
+                plot_ui.vline(vline_right);
             });
         });
     }

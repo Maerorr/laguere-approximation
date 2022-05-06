@@ -101,7 +101,9 @@ pub fn laguere_poly(n: usize) -> Vec<f64> {
     let mut val: Vec<f64> = Vec::new();
     for k in 0..(n+1) {
         // WIKIPEDIA LAGUERRE POLYNOMIAL
-        val.push( binomial_coeff(n, k) as f64 * pow(-1, k) as f64 / factorial(k) as f64 );
+        val.push( binomial_coeff(n, k) as f64 
+        * pow(-1, k) as f64 
+        / factorial(k) as f64 );
 
         // LECTURE LAGUERRE POLYNOMIAL (terribly wrong)
         // val.push( binomial_coeff(n, k) as f64 * pow(-1, k) as f64 * factorial(k) as f64);
@@ -113,10 +115,19 @@ pub fn laguere_poly(n: usize) -> Vec<f64> {
 /// Uses Horner's method.
 /// * a - vector of coefficients of a function for example 3x^2 + 2x + 1 = {1, 2, 3}
 pub fn horner(a: &Vec<f64>, x: f64) -> f64 {
-    let mut i = a.len() - 1;
-    let mut out = a[i];
-    for i in (0..a.len() - 1).rev() {
-        out = out * x + a[i];
+    let mut i = (a.len() - 1) as i32;
+    let mut out = a[i  as usize];
+    i -= 1;
+    while i >= 0 {
+        out *= x;
+        out += a[i as usize];
+        i -= 1;
     }
     out
+    // let mut i = a.len() - 1;
+    // let mut out = a[i];
+    // for i in (0..a.len() - 1).rev() {
+    //     out = out * x + a[i];
+    // }
+    // out
 }
