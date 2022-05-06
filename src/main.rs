@@ -3,7 +3,7 @@ use eframe::{
     epi::{App}, run_native,
 };
 use functions::function_value;
-use laguere::{laguere_approx_value, calculate_lambdas};
+use laguere::{laguere_approx_value, calculate_lambdas, approx_error};
 
 mod functions;
 mod laguere;
@@ -36,6 +36,7 @@ struct AppState {
     lambdas: Vec<f64>,
     center_plot: bool,
     integral_nodes: usize,
+    approx_error: f64,
 }
 
 impl AppState {
@@ -51,6 +52,7 @@ impl AppState {
             lambdas: Vec::new(),
             center_plot: false,
             integral_nodes: 2,
+            approx_error: 0.,
         }
     }
 }
@@ -107,10 +109,10 @@ impl App for AppState {
                 match self.mode {
                     Mode::Nodes => {
                         ui.group(|ui| {
-                            ui.label("No. Of Nodes");
+                            ui.label("Polynomial Degree");
                             ui.add(egui::Slider::new(&mut self.no_of_nodes, 2..=10));
                             ui.label("Newton-Cotes Nodes");
-                            ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=50));
+                            ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=20));
                         });
                     }
                     Mode::AproxError => {
@@ -146,7 +148,11 @@ impl App for AppState {
                         Value::new(x, laguere_approx_value(&self.lambdas, x))
                     })
                     .collect();
+
+                    self.approx_error = approx_error(self.function, &self.lambdas, self.integral_nodes, self.left, self.right);
                 }
+                let mut error = String::from(self.approx_error.to_string());
+                ui.label("Error: ".to_string() + &error);
                 // let mut text: String = String::new();
                 // for i in &self.lambdas {
                 //     text.push_str(&format!("{:.5}, ", i));

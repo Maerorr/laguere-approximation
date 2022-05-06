@@ -1,6 +1,6 @@
 use std::mem::swap;
 
-use crate::{Function, functions::{function_value, horner, weight}};
+use crate::{Function, functions::{function_value, horner, weight}, laguere::laguere_approx_value};
 
 
 // IMPLEMENTATION OF NEWTON COTES INTEGRATION FROM EXCERCISE 4.1
@@ -10,9 +10,9 @@ use crate::{Function, functions::{function_value, horner, weight}};
 pub fn newton_cotes_function_poly(f: Function, poly: Vec<f64>, a: f64, b: f64) -> f64 {
     let h = (b - a) / 2. as f64;
     let mut sum = 0.;
-    sum += function_value(a, f, true) * horner(&poly, a) * weight(a);
-    sum += 4. * function_value(a + h, f, true) * horner(&poly, a + h) * weight(a + h);
-    sum += function_value(b, f, true) * horner(&poly, b) * weight(b);
+    sum += function_value(a, f, false) * horner(&poly, a) * weight(a);
+    sum += 4. * function_value(a + h, f, false) * horner(&poly, a + h) * weight(a + h);
+    sum += function_value(b, f, false) * horner(&poly, b) * weight(b);
     sum * h / 3.
 }
 
@@ -59,4 +59,15 @@ pub fn newton_cotes(f: Function, poly: Vec<f64>, mut a: f64, mut b: f64, nodes: 
             return sum
         },
     };  
+}
+
+pub fn error_integral(f: Function, lambdas: Vec<f64>, a: f64, b: f64) -> f64 {
+    let h = (b - a) / 2.;
+    let mut sum = 0.;
+
+    sum += weight(a) * ((function_value(a, f, false) - laguere_approx_value(&lambdas, a)).powf(2.));
+    sum += 4. * weight(a+h) * ((function_value(a+h, f, false) - laguere_approx_value(&lambdas, a+h)).powf(2.));
+    sum += weight(b) * ((function_value(b, f, false) - laguere_approx_value(&lambdas, b)).powf(2.));
+
+    sum * h / 3.
 }
