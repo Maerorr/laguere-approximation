@@ -1,6 +1,5 @@
 use std::{
     f64::consts::{E},
-    vec,
 };
 
 use crate::Function;
@@ -20,7 +19,7 @@ pub fn linear(x: f64) -> f64 {
 }
 
 pub fn sinusoidal(x: f64) -> f64 {
-    x.cos()
+    x.sin()
 }
 
 pub fn absolute(x: f64) -> f64 {
@@ -60,7 +59,9 @@ pub fn function_value(x: f64, func: Function, with_weight: bool) -> f64 {
 /// returns e^(-x)
 /// weight taken from the excerscise
 pub fn weight(x: f64) -> f64 {
-    (-x).exp()
+    //(-x).exp()
+
+    E.powf(-x)
 }
 
 pub fn factorial(n: usize) -> i64 {
@@ -102,11 +103,8 @@ pub fn laguere_poly(n: usize) -> Vec<f64> {
     for k in 0..(n+1) {
         // WIKIPEDIA LAGUERRE POLYNOMIAL
         val.push( binomial_coeff(n, k) as f64 
-        * pow(-1, k) as f64 * factorial(n) as f64 
+        * pow(-1, k) as f64 // * factorial(n) as f64
         / factorial(k) as f64 );
-
-        // LECTURE LAGUERRE POLYNOMIAL (terribly wrong)
-        // val.push( binomial_coeff(n, k) as f64 * pow(-1, k) as f64 * factorial(k) as f64);
     } 
     val
 }
@@ -124,11 +122,4 @@ pub fn horner(a: &Vec<f64>, x: f64) -> f64 {
         i -= 1;
     }
     out
-
-    // let mut i = a.len() - 1;
-    // let mut out = a[i];
-    // for i in (0..a.len() - 1).rev() {
-    //     out = out * x + a[i];
-    // }
-    // out
 }

@@ -44,7 +44,7 @@ impl AppState {
         AppState {
             function: Function::Poly1,
             left: 0.,
-            right: 2.,
+            right: 10.,
             no_of_nodes: 2,
             mode: Mode::Nodes,
             chosen_function_values: Vec::new(),
@@ -112,7 +112,7 @@ impl App for AppState {
                             ui.label("Polynomial Degree");
                             ui.add(egui::Slider::new(&mut self.no_of_nodes, 2..=10));
                             ui.label("Newton-Cotes Nodes");
-                            ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=20));
+                            ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=40));
                         });
                     }
                     Mode::AproxError => {
@@ -149,7 +149,12 @@ impl App for AppState {
                     })
                     .collect();
 
-                    self.approx_error = approx_error(self.function, &self.lambdas, self.integral_nodes, self.left, self.right);
+                    let mut sum = 0.;
+                    let step = (self.right - self.left) / self.no_of_nodes as f64;
+                    for i in 0..self.no_of_nodes {
+                        sum += (function_value(self.left + i as f64 * step, self.function, false) - laguere_approx_value(&self.lambdas, self.left + i as f64 * step)).powi(2);
+                    }
+                    self.approx_error = sum.sqrt();
                 }
                 let error = String::from(self.approx_error.to_string());
                 ui.label("Error: ".to_string() + &error);
