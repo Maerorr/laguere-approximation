@@ -42,7 +42,7 @@ pub fn newton_cotes(f: Function, poly: Vec<f64>, mut a: f64, mut b: f64, nodes: 
             let h = (b - a) / (nodes as f64);
             let mut sum = 0.;
             let mut x = a;
-            for i in 1..nodes+1 {
+            for i in 0..nodes {
                 sum += newton_cotes_function_poly(f, poly.to_vec(), x, x + h);
                 x += h;
             }
@@ -52,7 +52,7 @@ pub fn newton_cotes(f: Function, poly: Vec<f64>, mut a: f64, mut b: f64, nodes: 
             let h = (b - a) / (nodes as f64);
             let mut sum = 0.;
             let mut x = a;
-            for i in 1..nodes+1 {
+            for i in 0..nodes {
                 sum += newton_cotes_poly_weight(f, poly.to_vec(), x, x + h);
                 x += h;
             }

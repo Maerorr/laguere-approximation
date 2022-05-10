@@ -133,8 +133,8 @@ impl App for AppState {
                     // generating values of chosen function for the plot
                     self.chosen_function_values = (0..10000)
                     .map(|i| {
-                        let x = min + i as f64 *
-                        ((max) - (min)) / 10000.;
+                        let x = min + (i as f64 *
+                        ((max) - (min)) / 10000.);
                         Value::new(x, function_value(x, self.function, false))
                     })
                     .collect();
@@ -143,23 +143,16 @@ impl App for AppState {
                     self.lambdas = calculate_lambdas(self.function, self.no_of_nodes, self.integral_nodes, self.left, self.right);
                     self.approx_values = (0..10000)
                     .map(|i| {
-                        let x = min + i as f64 *
-                        ((max) - (min)) / 10000.;
+                        let x = min + (i as f64 *
+                        ((max) - (min)) / 10000.);
                         Value::new(x, laguere_approx_value(&self.lambdas, x))
                     })
                     .collect();
 
                     self.approx_error = approx_error(self.function, &self.lambdas, self.integral_nodes, self.left, self.right);
                 }
-                let mut error = String::from(self.approx_error.to_string());
+                let error = String::from(self.approx_error.to_string());
                 ui.label("Error: ".to_string() + &error);
-                // let mut text: String = String::new();
-                // for i in &self.lambdas {
-                //     text.push_str(&format!("{:.5}, ", i));
-                // }
-                // ui.text_edit_multiline(
-                //     &mut text
-                // )
             });
         });
         egui::CentralPanel::default().show(ctx, |ui| {

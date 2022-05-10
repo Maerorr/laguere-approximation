@@ -1,6 +1,4 @@
-use std::{fs::File, io::Write};
-
-use crate::{Function, functions::{weight, laguere_poly, function_value, horner, factorial}, integral::{newton_cotes, newton_cotes_function_poly, newton_cotes_poly_weight, error_integral}};
+use crate::{Function, functions::{laguere_poly, horner, factorial}, integral::{newton_cotes, error_integral}};
 
 /// Returns approximated value of a function in x.
 /// ### f - function to be approximated
@@ -30,7 +28,7 @@ pub fn approx_error(f: Function, lambdas: &Vec<f64>, nodes: usize, a: f64, b: f6
     let h = (b - a) / (nodes as f64);
     let mut sum = 0.;
     let mut x = a;
-    for i in 1..nodes+1 {
+    for i in 0..nodes {
         sum += error_integral(f, lambdas.to_vec(), x, x + h);
         x += h;
     }

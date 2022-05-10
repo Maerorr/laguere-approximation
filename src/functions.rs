@@ -102,7 +102,7 @@ pub fn laguere_poly(n: usize) -> Vec<f64> {
     for k in 0..(n+1) {
         // WIKIPEDIA LAGUERRE POLYNOMIAL
         val.push( binomial_coeff(n, k) as f64 
-        * pow(-1, k) as f64 
+        * pow(-1, k) as f64 * factorial(n) as f64 
         / factorial(k) as f64 );
 
         // LECTURE LAGUERRE POLYNOMIAL (terribly wrong)
@@ -124,6 +124,7 @@ pub fn horner(a: &Vec<f64>, x: f64) -> f64 {
         i -= 1;
     }
     out
+
     // let mut i = a.len() - 1;
     // let mut out = a[i];
     // for i in (0..a.len() - 1).rev() {
