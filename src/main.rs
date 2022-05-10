@@ -103,22 +103,15 @@ impl App for AppState {
                     });
                     
                 }); 
-                ui.label("Mode");
-                ui.radio_value(&mut self.mode, Mode::Nodes, "Nodes");
-                ui.radio_value(&mut self.mode, Mode::AproxError, "Approx. Error");
-                match self.mode {
-                    Mode::Nodes => {
-                        ui.group(|ui| {
-                            ui.label("Polynomial Degree");
-                            ui.add(egui::Slider::new(&mut self.no_of_nodes, 2..=10));
-                            ui.label("Newton-Cotes Nodes");
-                            ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=40));
-                        });
-                    }
-                    Mode::AproxError => {
-                        ui.label("todo");
-                    }
-                }
+                //ui.label("Mode");
+                //ui.radio_value(&mut self.mode, Mode::Nodes, "Nodes");
+                //ui.radio_value(&mut self.mode, Mode::AproxError, "Approx. Error");
+                ui.group(|ui| {
+                    ui.label("Polynomial Degree");
+                    ui.add(egui::Slider::new(&mut self.no_of_nodes, 2..=10));
+                    ui.label("Newton-Cotes Nodes");
+                    ui.add(egui::Slider::new(&mut self.integral_nodes, 2..=40));
+                });
                 if ui.button("Calculate").clicked() {
 
                     // default some parameters
