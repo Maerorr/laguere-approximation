@@ -144,7 +144,7 @@ impl App for AppState {
 
                     let mut sum = 0.;
                     let step = (self.right - self.left) / self.no_of_nodes as f64;
-                    for i in 0..self.no_of_nodes {
+                    for i in 0..self.no_of_nodes+1 {
                         sum += (function_value(self.left + i as f64 * step, self.function, false) - laguere_approx_value(&self.lambdas, self.left + i as f64 * step)).powi(2);
                     }
                     self.approx_error = sum.sqrt();

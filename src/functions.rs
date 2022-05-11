@@ -11,7 +11,8 @@ pub fn polynomial1(x: f64) -> f64 {
 
 pub fn polynomial2(x: f64) -> f64 {
     //0.07*x^4+0.3*x^3-0.2*x^2-x-1.
-    -1. + x * (-1. + x * (-0.2 + x * (-0.3 + x * 0.07)))
+    //-1. + x * (-1. + x * (-0.2 + x * (-0.3 + x * 0.07)))
+    E.powf(-4.*x) * (5.*x - 3.*x.powi(2))
 }
 
 pub fn linear(x: f64) -> f64 {
